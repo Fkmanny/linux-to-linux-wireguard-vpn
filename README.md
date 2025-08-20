@@ -117,3 +117,62 @@ This project implements a high-performance, secure VPN tunnel between two Linux 
 ```bash
 sudo apt update
 sudo apt install wireguard resolvconf
+```
+
+2. **Generate Cryptographic Keys**
+```bash
+# Generate private key with secure permissions
+wg genkey | sudo tee /etc/wireguard/privatekey | wg pubkey | sudo tee /etc/wireguard/publickey
+sudo chmod 600 /etc/wireguard/privatekey
+```
+
+3. **Create WireGuard Configuration**
+```bash
+# LinuxVM1 Configuration (/etc/wireguard/wg0.conf)
+[Interface]
+PrivateKey = <LINUXVM1_PRIVATE_KEY>
+Address = 10.10.10.1/24
+ListenPort = 51820
+
+[Peer]
+PublicKey = <LINUXVM2_PUBLIC_KEY>
+AllowedIPs = 10.10.10.2/32
+Endpoint = 10.174.237.40:51820
+
+# LinuxVM2 Configuration (/etc/wireguard/wg0.conf)
+[Interface]
+PrivateKey = <LINUXVM2_PRIVATE_KEY>
+Address = 10.10.10.2/24
+ListenPort = 51820
+PersistentKeepalive = 25
+
+[Peer]
+PublicKey = <LINUXVM1_PUBLIC_KEY>
+AllowedIPs = 10.10.10.1/32
+Endpoint = 10.174.237.20:51820
+```
+
+4 **Enable and Start WireGuard**
+
+```bash
+sudo wg-quick up wg0
+sudo systemctl enable wg-quick@wg0
+Firewall Configuration
+
+```bash
+sudo ufw allow 51820/udp
+sudo ufw reload
+Verification Commands
+
+```bash
+# Check tunnel status
+sudo wg show
+
+# Verify interface configuration
+ip addr show wg0
+
+# Test connectivity
+ping -c 4 10.10.10.2
+
+# Check routing table
+ip route list
