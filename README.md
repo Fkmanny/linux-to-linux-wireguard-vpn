@@ -153,17 +153,18 @@ Endpoint = 10.174.237.20:51820
 ```
 
 4 **Enable and Start WireGuard**
-
 ```bash
 sudo wg-quick up wg0
 sudo systemctl enable wg-quick@wg0
-Firewall Configuration
+```
 
+5 **Firewall Configuration**
 ```bash
 sudo ufw allow 51820/udp
 sudo ufw reload
-Verification Commands
+```
 
+6 **Verification Commands**
 ```bash
 # Check tunnel status
 sudo wg show
